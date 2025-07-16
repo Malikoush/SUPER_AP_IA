@@ -1,0 +1,32 @@
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnements virtuels
+env/
+venv/
+.venv/
+
+# Fichiers de logs ou temporaires
+*.log
+*.tmp
+
+# Fichiers de configuration de l’IDE (optionnel)
+.vscode/
+.idea/
+
+# Systèmes d’exploitation
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Sauvegardes d’éditeurs
+*.swp
+*.bak
+*~
+
+# Cache de test ou build
+.coverage
+dist/
+build/
+*.egg-info/
