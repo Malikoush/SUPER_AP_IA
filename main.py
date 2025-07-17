@@ -7,8 +7,8 @@ from Partie import Partie
 joueur1 = Joueur("Alice")
 joueur2 = Joueur("Bob")
 
-#partie = Partie(joueur1, joueur2)
-#partie.lancer()
+partie = Partie(joueur1, joueur2)
+partie.lancer()
 
 
 

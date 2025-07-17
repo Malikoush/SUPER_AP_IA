@@ -10,8 +10,10 @@ def test_capacite_fourmi():
     equipe = [data.fourmi, data.MOCK_ANIMAUX[1], data.MOCK_ANIMAUX[2], None, None]
 
     # Simule la mort
+   
     index = equipe.index(data.fourmi)
     equipe[index] = None
+
     if data.fourmi.capacité.trigger == Evenement.MORT:
         data.fourmi.capacité.activer(animal=data.fourmi, equipe=equipe)
 
@@ -55,9 +57,10 @@ def test_capacite_cheval():
 def test_capacite_moustique():
     print("\n=== Test de la capacité du Moustique (début combat : dégâts ennemi) ===")
     equipe = [data.MOCK_ANIMAUX[0], data.moustique, data.MOCK_ANIMAUX[2], None, None]
-
+    equipe_enemie = [data.MOCK_ANIMAUX[0], data.moustique.clone(), data.MOCK_ANIMAUX[2], None, None]
+    data.moustique.evolue()
     if data.moustique.capacité.trigger == Evenement.DEBUT_COMBAT:
-        data.moustique.capacité.activer(animal=data.moustique, equipe=equipe)
+        data.moustique.capacité.activer(animal=data.moustique, equipe=equipe,equipe_enemie=equipe_enemie)
 
 def test_capacite_loutre():
     print("\n=== Test de la capacité de la Loutre (à l'achat : boost 1 ami) ===")

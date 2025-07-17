@@ -1,5 +1,32 @@
 import data
+import Joueur
+from Animal import Animal
 
+def test_acheter_nourriture():
+    print("\n=== Test : Achat de nourriture ===")
+
+    # Préparation
+    joueur = Joueur.Joueur("Alice")
+    boutique = joueur.boutique
+
+    # On donne un animal au joueur
+    animal = Animal("TestAnimal", 2, 2, None, 1, 1, 1)
+    joueur.ajouter_animal(animal, 0)
+
+    boutique.raffraichir() 
+   
+
+    # Vérification de départ
+    print(f"Avant achat : {joueur.animaux[0].nom} a {joueur.animaux[0].santé} vie et {joueur.animaux[0].degats} attaque.")
+    print(f"Gold initial : {joueur.gold}")
+
+    # Test de l’achat de la pomme sur l’animal à la position 0
+    success = joueur.acheter_nourriture(boutique, from_index=0, cible=0)
+
+    # Résultats attendus
+    print(f"Achat réussi ? {success}")
+    print(f"Après achat : {joueur.animaux[0].nom} a {joueur.animaux[0].santé} vie et {joueur.animaux[0].degats} attaque.")
+    print(f"Gold restant : {joueur.gold}")
 
 def test_pomme():
     print("\n=== Test de la nourriture Pomme (boost 1 ATQ et 1 VIE) ===")
@@ -27,6 +54,7 @@ def test_miette():
 
 # Lancer les tests un par un
 if __name__ == "__main__":
+    test_acheter_nourriture()
     test_pomme()
     test_miel()
     test_miette()

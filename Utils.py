@@ -1,4 +1,11 @@
+from Evenements import Evenement
+
+
 def invoquer_animal(equipe, animal, position=None):
+    joueur = animal.joueur 
+    if joueur is None:
+        print(f"Erreur : {animal.nom} n'a pas de joueur associé.")
+        return False
     if position is not None:
         if position < 0 or position >= len(equipe):
             print("Position invalide.")
@@ -9,6 +16,13 @@ def invoquer_animal(equipe, animal, position=None):
                 return False
             
         equipe[position] = animal
+        if animal.capacité and animal.capacité.trigger == Evenement.INVOCATION:
+          index = equipe(animal)
+          animal.capacité.activer(animal=animal, position=index, equipe=equipe)
+        for a in equipe:
+            if a is not None and a != animal and a.capacité and a.capacité.trigger == Evenement.AMI_INVOQUE:
+                index = equipe.index(a)
+                a.capacité.activer(animal=a, position=index, equipe=equipe)
         return True
     else:
         for i in range(len(equipe)):

@@ -16,6 +16,8 @@ class Partie:
             self.phase_combat()
 
             self.tour += 1
+            self.joueur1.boutique.rang_boutique = min(6, (self.tour + 1) // 2)
+            self.joueur2.boutique.rang_boutique = min(6, (self.tour + 1) // 2)
 
         
         self.fin_de_partie()
@@ -58,6 +60,7 @@ class Partie:
         print("\n--- Phase de combat ---")
         combat = Combat(self.joueur1, self.joueur2)
         combat.commencer()
+        
 
     def fin_de_partie(self):
         print("\n=== Fin de la partie ===")
