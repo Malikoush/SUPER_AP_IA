@@ -19,13 +19,16 @@ class Boutique:
     
     animaux_filtrés = [a for a in MOCK_ANIMAUX if not a.rang > self.rang_boutique]
     nourriture_filtrée = [n for n in MOCK_NOURRITURE if not n.rang > self.rang_boutique]
-
+    self.animaux = [a for a in self.animaux if a is not None and a.gelé]
+    self.nourriture = [n for n in self.nourriture if n is not None and n.gelé]
     nb_animaux, nb_nourriture = self.calculer_emplacements()
 
-    choix_animaux = random.choices(animaux_filtrés, k=nb_animaux)
-    choix_nourriture = random.choices(nourriture_filtrée, k=nb_nourriture)
-    self.animaux = [a.clone() for a in choix_animaux]
-    self.nourriture = [n.clone() for n in choix_nourriture]
+    choix_animaux = random.choices(animaux_filtrés, k=nb_animaux - len(self.animaux))
+    choix_nourriture = random.choices(nourriture_filtrée, k=nb_nourriture - len(self.nourriture))
+    for a in choix_animaux:
+      self.animaux.append(a.clone())
+    for n in choix_nourriture:
+      self.nourriture.append(n.clone())
     print("La boutique a été rafraîchie.")
     self.afficher_animaux()
     self.afficher_nourriture()
@@ -47,15 +50,24 @@ class Boutique:
         else:
             print("Animaux disponibles dans la boutique:")
             for animal in self.animaux:
-                print(f"Nom: {animal.nom}, Dégâts: {animal.degats}, Santé: {animal.santé}, Capacité: {animal.capacité.nom}")
+                if animal is None:
+                    print("Vide")
+                else:    
+                  statut = "❄ Gelé" if animal and animal.gelé else ""
+                  print(f"Nom: {animal.nom}, Dégâts: {animal.degats}, Santé: {animal.santé}, Capacité: {animal.capacité.nom} {statut}")
 
   def afficher_nourriture(self):
         if not self.nourriture:
             print("Aucune nourriture disponible.")
         else:
-            print("Nourriture disponible:")
-            for nourriture in self.nourriture:
-              print(f"Nom: {nourriture.nom}, Description: {nourriture.description}, Prix: {nourriture.prix} or, Rang: {nourriture.rang}")
+              print("Nourriture disponible:")
+               
+              for nourriture in self.nourriture:
+                 if nourriture is None:
+                    print("Vide")
+                 else:
+                  statut = "❄ Gelé" if nourriture and nourriture.gelé else ""
+                  print(f"Nom: {nourriture.nom}, Description: {nourriture.description}, Prix: {nourriture.prix} or, Rang: {nourriture.rang} {statut}")
 
 
   def retirer_animal(self, index):
@@ -75,5 +87,21 @@ class Boutique:
 
 
 
-  def geler(self,animal):
-    pass
+  def geler(self,item):
+        if item not in self.animaux and item not in self.nourriture:
+          print(f"{item.nom} n'appartient pas à cette boutique.")
+          return
+        if item.gelé:
+            print(f"{item.nom} est déjà gelé.")
+        else:
+            item.gelé = True
+            print(f"{item.nom} a été gelé il restera dans la boutique après raffraichissement.")
+  def degeler(self,item):
+        if item not in self.animaux and item not in self.nourriture:
+          print(f"{item.nom} n'appartient pas à cette boutique.")
+          return
+        if not item.gelé:
+            print(f"{item.nom} n'est pas gelé.")
+        else:
+            item.gelé = False
+            print(f"{item.nom} a été dégélé il sera raffraichie comme prevue.")

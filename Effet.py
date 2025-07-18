@@ -1,5 +1,6 @@
 # effets.py
 import random
+from Animal import Animal
 import Utils
 
 
@@ -18,11 +19,14 @@ def boost_aleatoire(animal, equipe, boost_vie=True, boost_attaque=True, nombre_c
         print(f"{animal.nom} booste {choisi.nom} : +{boost_degats if boost_attaque else 0} ATQ / +{boost_santé if boost_vie else 0} VIE")
 
 def boost_cible(booster, cible, boost_vie=True, boost_attaque=True,valeur_boost =1, **kwargs):
-   
+        if type(booster) is Animal:
+             boost = booster.niveau
+        else:
+            boost = 1
         if boost_attaque:
-            cible.degats += valeur_boost * booster.niveau
+            cible.degats += valeur_boost * boost
         if boost_vie:
-            cible.santé += valeur_boost * booster.niveau
+            cible.santé += valeur_boost * boost
         print(f"{booster.nom} booste {cible.nom} : +{1 if boost_attaque else 0} ATQ / +{1 if boost_vie else 0} VIE")
    
 

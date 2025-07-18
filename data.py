@@ -35,7 +35,7 @@ pigeon = Animal("Pigeon", 3, 1, à_la_vente_stock_nourriture, 1, 1, 1)
 
 #Nourriture Tier 1
 pomme = Nourriture("Pomme",lambda cible : Effet.boost_cible(pomme,cible), "+1 vie,+1 degat animal", 3, 1)
-miel = Nourriture("Miel",lambda cible: setattr(cible, 'atout', Atout("Miel",lambda position, equipe=None : Effet.invoque_zombie(position=position,equipe = equipe,zombie=abeille), trigger=Evenement.MORT)), "Ajoute l'atout miel a l'animal", 3, 1)
+miel = Nourriture("Miel",lambda cible: setattr(cible, 'atout', Atout("Miel",lambda position, equipe=None : Effet.invoque_zombie(position=position,equipe = equipe,zombie=abeille,joueur=cible.joueur ), trigger=Evenement.MORT)), "Ajoute l'atout miel a l'animal", 3, 1)
 miette = Nourriture("Miette de pain",lambda cible: Effet.boost_cible(miette, cible, boost_vie=False), "+1 degat animal", 0, 100)
 
 # Liste des animaux mockés

@@ -13,6 +13,7 @@ class Animal:
         self.experience = experience
         self.niveau = niveau
         self.rang = rang
+        self.gelé = False
         self.atout = None
         self.joueur = None
 

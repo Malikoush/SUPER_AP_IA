@@ -6,6 +6,7 @@ class Nourriture:
         self.prix = prix
         self.rang = rang
         self.requiert_cible = requiert_cible
+        self.gelé = False
 
     def utiliser(self,  **kwargs):
         if self.effet:
