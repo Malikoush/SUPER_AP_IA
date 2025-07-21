@@ -1,4 +1,5 @@
 # effets.py
+import math
 import random
 from Animal import Animal
 import Utils
@@ -24,11 +25,20 @@ def boost_cible(booster, cible, boost_vie=True, boost_attaque=True,valeur_boost 
         else:
             boost = 1
         if boost_attaque:
-            cible.degats += valeur_boost * boost
+            for c in cible:
+                if c is not None:
+                 c.degats += valeur_boost * boost
+            
         if boost_vie:
-            cible.santé += valeur_boost * boost
-        print(f"{booster.nom} booste {cible.nom} : +{1 if boost_attaque else 0} ATQ / +{1 if boost_vie else 0} VIE")
+            for c in cible:
+                if c is not None:
+                    c.santé += valeur_boost * boost
+        for c in cible:
+             if c is not None:
+                 print(f"{booster.nom} booste {c.nom} : +{1 if boost_attaque else 0} ATQ / +{1 if boost_vie else 0} VIE")
    
+
+
 
 def boost_boutique(animal, boutique,valeur_boost =1, **kwargs):
     for a in boutique.animaux:
@@ -57,6 +67,20 @@ def degats_ennemi(animal, equipe,nombre_cible, **kwargs):
             print(f"{animal.nom} inflige {degats} dégâts à {cible.nom}")
             if cible.santé <= 0:
                 cible.meur_combat(equipe)
+
+def degats_tous(ennemis,equipe, degats, **kwargs):
+    cibles = ennemis + equipe
+    if  cibles:
+        for cible in cibles:
+            if cible is not None:
+                cible.subit(degats)
+                print(f"{cible.nom} subit {degats} dégâts.")
+                if cible in ennemis and cible.santé <= 0:
+                    cible.meur_combat(ennemis)
+                elif cible in equipe and cible.santé <= 0:
+                    cible.meur_combat(equipe)
+    
+           
         
 
 def or_supplémentaire(animal, joueur, **kwargs):
@@ -72,3 +96,18 @@ def stock_nourriture(animal, boutique,nourriture, **kwargs):
         
     else:
         print("Aucune boutique disponible pour stocker la nourriture.")
+
+def copie_vie(animal, equipe, **kwargs):
+    amie = equipe[0] if equipe else None
+    for a in equipe:
+        if a is not None:
+      
+            if a.santé > amie.santé:
+                amie = a
+           
+    if amie:
+        gain = math.floor(amie.santé * 0.5 * animal.niveau)
+        animal.santé += gain
+        print(f"{animal.nom} copie la vie de {amie.nom} et obtient {gain} points de vie supplémentaires.")
+    else:
+        print(f"{animal.nom} n'a pas trouvé d'ami plus sain pour copier la vie.")

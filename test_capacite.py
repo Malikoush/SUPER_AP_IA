@@ -7,7 +7,7 @@ from Joueur import Joueur
 # Exemple de test manuel
 def test_capacite_fourmi():
     print("\n=== Test de la capacité de la Fourmi (à la mort : boost aléatoire) ===")
-    equipe = [data.fourmi, data.MOCK_ANIMAUX[1], data.MOCK_ANIMAUX[2], None, None]
+    equipe = [data.fourmi, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
 
     # Simule la mort
    
@@ -19,7 +19,7 @@ def test_capacite_fourmi():
 
 def test_capacite_castor():
     print("\n=== Test de la capacité du Castor (à la vente : boost 2 amis) ===")
-    equipe = [data.castor, data.MOCK_ANIMAUX[1], data.MOCK_ANIMAUX[2], None, None]
+    equipe = [data.castor, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
 
     if data.castor.capacité.trigger == Evenement.VENTE:
         data.castor.capacité.activer(animal=data.castor, equipe=equipe)
@@ -27,11 +27,11 @@ def test_capacite_castor():
 def test_capacite_criquet():
     print("\n=== Test de la capacité du Criquet (à la mort : invoquer zombie) ===")
     equipe = [data.criquet, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
-
-    index = equipe.index(data.criquet)
-    equipe[index] = None
-    if data.criquet.capacité.trigger == Evenement.MORT:
-        data.criquet.capacité.activer(animal=data.criquet, position=index, equipe=equipe)
+    joueur = Joueur("Alice")
+    joueur.animaux= equipe
+    equipe[0].joueur = joueur
+    equipe[0].meur()
+    
 
 def test_capacite_canard():
     print("\n=== Test de la capacité du Canard (à la vente : boost boutique) ===")
@@ -97,6 +97,110 @@ def test_capacite_pigeon():
         boutique.afficher_nourriture()
         boutique.raffraichir() 
 
+def test_capacite_flamant_rose():
+    print("\n=== Test de la capacité du Flamant Rose (à la mort : boost 2 amis derrière) ===")
+    equipe = [data.flamant_rose, None, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None]
+
+    index = equipe.index(data.flamant_rose)
+    equipe[index] = None
+    if data.flamant_rose.capacité.trigger == Evenement.MORT:
+        data.flamant_rose.capacité.activer(animal=data.flamant_rose,position=index, equipe=equipe)
+
+def test_capacite_crabe():
+    print("\n=== Test de la capacité du Crabe (au début combat : copie vie ami plus sain) ===")
+    equipe = [data.crabe, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+   
+
+    if data.crabe.capacité.trigger == Evenement.DEBUT_COMBAT:
+        data.crabe.capacité.activer(animal=data.crabe, equipe=equipe)
+
+def test_capacite_hérisson():
+    print("\n=== Test de la capacité du Hérisson (à la mort : dégâts à tous) ===")
+    equipe = [data.hérisson.clone(), data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+    equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2], None, None]
+    joueur = Joueur("Alice")
+    joueur2 = Joueur("Bob")
+    equipe[0].joueur = joueur
+    joueur.animaux = equipe
+    joueur.adversaire = joueur2
+    joueur.adversaire.animaux = equipe_enemie
+    joueur.animaux
+
+    equipe[0].meur_combat(joueur.animaux)  # Simule la mort du hérisson
+  
+
+def test_capacite_kangourou():
+    print("\n=== Test de la capacité du Kangourou (ami devant attaque gagne stat) ===")
+    equipe = [data.kangourou, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+
+    if data.kangourou.capacité.trigger == Evenement.AMI_DEVANT_ATTAQUE:
+        data.kangourou.capacité.activer(animal=data.kangourou, equipe=equipe)
+
+def test_capacite_paon():
+    print("\n=== Test de la capacité du Paon (quand blessé : gagne attaque) ===")
+    equipe = [data.paon, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+
+    if data.paon.capacité.trigger == Evenement.BLESSE:
+        data.paon.capacité.activer(animal=data.paon, equipe=equipe)
+
+def test_capacite_rat():
+    print("\n=== Test de la capacité du Rat (à la mort : invoque rat sale) ===")
+    equipe = [data.rat, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+    equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2],None, None]
+    joueur = Joueur("Alice")
+    joueur2 = Joueur("Bob")
+    equipe[0].joueur = joueur
+    joueur.animaux = equipe
+    joueur.adversaire = joueur2
+    joueur.adversaire.animaux = equipe_enemie
+    joueur.animaux
+
+    equipe[0].meur_combat(joueur.animaux)
+
+def test_capacite_escargot():
+    print("\n=== Test de la capacité de l'escargot (fin du tour :si defaite  boost santé equipe) ===")
+    equipe = [data.escargot, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+
+    if data.escargot.capacité.trigger == Evenement.FIN_TOUR:
+        data.escargot.capacité.activer(animal=data.escargot, equipe=equipe)
+
+def test_capacite_araigné():
+    print("\n=== Test de la capacité de l'araigné (mort : invoque un animal tier 3) ===")
+    equipe = [data.araignée.clone(), data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+    joueur = Joueur("Alice")
+    joueur.animaux = equipe 
+    equipe[0].joueur = joueur
+
+    equipe[0].meur_combat(equipe)
+
+def test_capacite_cygne():
+    print("\n=== Test de la capacité ddu cygne(mdebut du tour : gagne de l'or) ===")
+    equipe = [data.cygne, data.MOCK_ANIMAUX[1], data.MOCK_ANIMAUX[2], None, None]
+    joueur = Joueur("Alice")
+    joueur.animaux = equipe
+    equipe[0].joueur = joueur
+
+    if data.cygne.capacité.trigger == Evenement.DEBUT_TOUR:
+        data.cygne.capacité.activer(animal=data.cygne)
+        print(f"Or du joueur debut du tour : {joueur.gold}")
+
+def test_capacite_ver():
+    print("\n=== Test de la capacité du Ver (début du tour : stocke une pomme) ===")
+    boutique = Boutique()
+    boutique.nourriture = [data.pomme, data.miel]
+    joueur = Joueur("Alice")
+    joueur.boutique = boutique
+    if data.ver.capacité.trigger == Evenement.DEBUT_TOUR:
+        boutique.afficher_nourriture()
+        data.ver.capacité.activer(boutique=boutique, animal=data.ver)
+       
+        
+        boutique.afficher_nourriture()
+        
+
+
+   
+
 # Lancer les tests un par un
 if __name__ == "__main__":
     test_capacite_fourmi()
@@ -109,3 +213,13 @@ if __name__ == "__main__":
     test_capacite_loutre()
     test_capacite_cochon()
     test_capacite_pigeon()
+    test_capacite_flamant_rose()
+    test_capacite_crabe()
+    test_capacite_hérisson()
+    test_capacite_kangourou()
+    test_capacite_paon()
+    test_capacite_rat()
+    test_capacite_escargot()
+    test_capacite_araigné()
+    test_capacite_cygne()
+    test_capacite_ver()

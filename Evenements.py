@@ -8,3 +8,7 @@ class Evenement(Enum):
     INVOCATION = "invocation"
     AMI_INVOQUE = "ami_invoque"
     EVOLUTION = "evolution"
+    AMI_DEVANT_ATTAQUE = "ami_devant_attaque"
+    BLESSE = "blessé"
+    FIN_TOUR = "fin_du_tour"
+    DEBUT_TOUR = "debut_du_tour"

@@ -10,6 +10,7 @@ class Joueur:
     self.nom = nom
     self.animaux = [None] * 5 
     self.boutique = Boutique()
+    self.adversaire = None 
 
 
   def peut_payer(self, prix):

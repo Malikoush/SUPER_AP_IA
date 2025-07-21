@@ -69,9 +69,11 @@ class Animal:
   def meur_combat(self, equipe_combat):
       index = equipe_combat.index(self)
       equipe_combat[index] = None
+      equipe_enemie = self.joueur.adversaire.animaux if self.joueur and self.joueur.adversaire else None
+     
       print(f"{self.nom} est mort (combat) !")
       # Optionnel : gérer effets de mort en combat
       if self.capacité and self.capacité.trigger == Evenement.MORT:
-          self.capacité.activer(animal=self, position=index, equipe=equipe_combat)
+          self.capacité.activer(animal=self, position=index, equipe=equipe_combat,equipe_enemie=equipe_enemie)
       if self.atout and self.atout.trigger == Evenement.MORT:
           self.atout.activer(position=index, equipe=equipe_combat)
