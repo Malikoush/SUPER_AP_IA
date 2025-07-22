@@ -29,10 +29,21 @@ class Animal:
 
   def attaque(self,cible):
      print(f"{self.nom} attaque {cible.nom} est lui fait {self.degats} degats.")
+     
      cible.subit(self.degats)
   
   def subit(self, degats):
+    if self.atout and self.atout.trigger == Evenement.BLESSE:
+        if self.atout.nom == "Pastèque":
+            print(f"{self.nom} a une pastèque ! Réduction de 20 dégâts.")
+            degats = max(degats - 20, 0)
+            self.atout.utilisations -= 1
+            if self.atout.utilisations <= 0:
+                self.atout = None
     self.santé= max(0, self.santé - degats)
+    
+    if self.santé <= 0:
+            self.meur_combat(self.joueur.animaux if self.joueur else None)
     
   def gagne_experience(self,from_animal):
     self.experience += from_animal.experience

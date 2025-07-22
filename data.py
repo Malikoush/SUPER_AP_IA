@@ -7,17 +7,23 @@ from Evenements import Evenement
 import Effet
 from Nourriture import Nourriture
 
+# Atout
+miel_atout = Atout("Miel", lambda position, equipe=None: Effet.invoque_zombie(position=position, equipe=equipe, zombie=abeille, joueur=None), trigger=Evenement.MORT)
+pasteque_atout = Atout("Pastèque", lambda animal: Effet.bouclier_degats(animal), trigger=Evenement.BLESSE,utilisations=1)
+
+#Capacité tier 1
 à_la_mort_boost_aleatoire = Capacité("à_la_mort_boost_aleatoire", Evenement.MORT,lambda animal, equipe=None,position=None,**kwargs: Effet.boost_aleatoire(animal, equipe=equipe,scale_boost=True))
 à_la_vente_boost_2_amis = Capacité("à_la_vente_boost_2_amis", Evenement.VENTE,lambda animal, equipe=None,position=None: Effet.boost_aleatoire(animal, equipe=equipe, nombre_cibles=2 ,boost_vie=False,scale_boost=True))
 à_la_mort_invoque_zombie = Capacité("à_la_mort_invoque_zombie", Evenement.MORT, lambda  position,animal, equipe=None,**kwargs: Effet.invoque_zombie(position=position, equipe=equipe, zombie=generer_zombie_criquet(animal.niveau),joueur =animal.joueur))
 à_la_vente_boost_boutique = Capacité("à_la_vente_boost_boutique", Evenement.VENTE, lambda animal, boutique=None,position=None: Effet.boost_boutique(animal, boutique=boutique))
 à_lévolution_boost_2_amis = Capacité("à_lévolution_boost_2_amis", Evenement.EVOLUTION, lambda animal, equipe=None,position=None: Effet.boost_aleatoire(animal, equipe=equipe, nombre_cibles=2 ,scale_boost=True))
 ami_invoqué_boost_temporaire = Capacité("ami_invoqué_boost_temporaire", Evenement.AMI_INVOQUE, lambda animal, equipe=None,position=None: Effet.boost_aleatoire(animal, equipe=equipe, nombre_cibles=1, boost_vie=False,scale_boost=True))
-début_combat_degats_ennemi = Capacité("début_combat_degats_ennemi", Evenement.DEBUT_COMBAT, lambda animal, equipe=None,equipe_enemie =None,position=None: Effet.degats_ennemi(animal, equipe=equipe_enemie, nombre_cible=1))
+début_combat_degats_ennemi = Capacité("début_combat_degats_ennemi", Evenement.DEBUT_COMBAT, lambda animal, equipe=None,equipe_enemie =None,position=None: Effet.degats_ennemi(animal, equipe=equipe_enemie, nombre_cible=animal.niveau))
 à_lachat_boost_1_ami = Capacité("à_lachat_boost_1_ami", Evenement.ACHAT,lambda animal, equipe=None,position=None: Effet.boost_aleatoire(animal,equipe=equipe,nombre_cibles=1,boost_attaque=False,scale_cible=True))
 à_la_vente_or_supplémentaire = Capacité("à_la_vente_or_supplémentaire", Evenement.VENTE, lambda animal, joueur=None,position=None,equipe=None: Effet.or_supplémentaire(animal, joueur=joueur))
 à_la_vente_stock_nourriture = Capacité("à_la_vente_stock_nourriture", Evenement.VENTE, lambda animal, boutique=None,position=None: Effet.stock_nourriture(animal, boutique=boutique, nourriture=miette))
 
+# Capacité tier 2
 au_debut_combat_copie_vie_ami_plus_sain = Capacité("au_debut_combat_copie_vie_ami_plus_sain", Evenement.DEBUT_COMBAT, lambda animal, equipe=None,position=None: Effet.copie_vie(animal, equipe=equipe))
 à_la_mort_booste_2_amis_derrière = Capacité(
     "à_la_mort_booste_2_amis_derrière",
@@ -30,7 +36,7 @@ au_debut_combat_copie_vie_ami_plus_sain = Capacité("au_debut_combat_copie_vie_a
         ][:2]
     )
 )
-à_la_mort_degats_a_tous = Capacité("à_la_mort_degats_2_a_tous", Evenement.MORT, lambda animal, equipe=None,equipe_enemie=None, position=None,**kwargs: Effet.degats_tous(ennemis=equipe_enemie, equipe = equipe, degats=2))
+à_la_mort_degats_a_tous = Capacité("à_la_mort_degats_2_a_tous", Evenement.MORT, lambda animal, equipe=None,equipe_enemie=None, position=None,**kwargs: Effet.degats_cible(animal,cibles= equipe_enemie+equipe, degats=2))
 ami_devant_attaque_gagne_stat = Capacité("ami_devant_attaque_gagne_stat", Evenement.AMI_DEVANT_ATTAQUE, lambda animal, equipe=None, position=None: Effet.boost_cible(animal, equipe=equipe, cible= [animal]))
 quand_blessé_gagne_attaque = Capacité("quand_blessé_gagne_attaque", Evenement.BLESSE, lambda animal, equipe=None, position=None: Effet.boost_cible(animal, equipe=equipe, cible=[animal], boost_attaque=True))
 à_la_mort_invoque_rat_sale = Capacité("à_la_mort_invoque_rat_sale", Evenement.MORT, lambda position, animal, equipe=None,equipe_enemie = None: Effet.invoque_zombie(position=0, equipe=equipe_enemie, zombie=Animal("Rat Sale", 1, 1, None, 1, 1, 1), joueur=animal.joueur.adversaire))
@@ -39,13 +45,132 @@ fin_de_tour_si_perdu_gagne_vie_aux_amis = Capacité("fin_de_tour_si_perdu_gagne_
 au_debut_tour_gagne_or = Capacité("au_debut_tour_gagne_or", Evenement.DEBUT_TOUR, lambda animal, **kwargs: Effet.or_supplémentaire(animal =animal, joueur=animal.joueur))
 au_debut_tour_stocke_pomme = Capacité("au_debut_tour_stocke_pomme", Evenement.DEBUT_TOUR,lambda boutique,animal, **kwargs: Effet.stock_nourriture(animal,boutique = boutique,nourriture= generer_ver_pomme(animal.niveau)))
 
+#Capacité tier 3
+à_la_mort_degats_aux_voisins = Capacité(
+    "à_la_mort_degats_aux_voisins",
+    Evenement.MORT,
+    lambda animal, equipe=None, equipe_enemie=None, position=None: (
+        lambda merged, pos: Effet.degats_cible(
+            animal,
+            cibles=[
+                c for c in (
+                    [a for a in merged[pos+1:] if a is not None][:1] +
+                    [a for a in merged[:pos][::-1] if a is not None][:1]
+                )
+            ],
+            degats=animal.degats,scale_pourcentage=True
+        )
+    )(
+        # Fusion des équipes, équipe inversée à gauche, position recalculée
+        merged = list(reversed(equipe)) + equipe_enemie,
+        pos = len(equipe) - 1 - position
+    )
+)
+
+quand_blessé_boost_ami_derrière = Capacité("quand_blessé_boost_ami_derrière",Evenement.BLESSE, 
+        lambda animal, equipe=None, position=None: Effet.boost_cible(
+        animal,
+       cible=[
+            equipe[i] for i in range(position + 1, len(equipe))
+            if equipe[i] is not None
+        ][:1]
+    ))
+
+début_combat_donne_attaque_ami_devant = Capacité("début_combat_donne_attaque_ami_devant",Evenement.DEBUT_COMBAT,
+         lambda animal, equipe=None, position=None: Effet.boost_cible(
+        animal,
+       cible=[
+            equipe[i] for i in range(position -1,position)
+            if equipe[i] is not None and equipe[i] != animal
+        ][:1],scale_pourcentage=True,valeur_boost_attaque=animal.degats,boost_vie=False))
+
+ami_invoqué_gain_temporaire = Capacité("ami_invoqué_gain_temporaire", Evenement.AMI_INVOQUE,
+         lambda animal, equipe=None, position=None: Effet.boost_cible(
+        animal,
+       cible=[animal]
+        ,valeur_boost_attaque=2,scale_boost=True))
+
+début_combat_degats_ennemi_le_plus_faible = Capacité("début_combat_degats_ennemi_le_plus_faible",Evenement.DEBUT_COMBAT,
+                                                     lambda animal,equipe_enemie=None, equipe=None :Effet.degats_cible(
+                                                      animal, 
+                                                      cibles= [ min(
+                                                                  [a for a in equipe_enemie if a is not None],
+                                                                    key=lambda x: x.santé
+                                                                        )
+                                                      ],
+                                                    degats=4
+
+                                                     )
+                                                     )
+
+après_attaque_blesse_ami_derrière = Capacité("après_attaque_blesse_ami_derrière",Evenement.ATTAQUE,
+                                               lambda animal, equipe=None, position=None: Effet.degats_cible(
+        animal,
+       cibles=[
+            equipe[i] for i in range(position + 1, len(equipe))
+            if equipe[i] is not None
+        ][:1]
+    )
+                                                  
+
+
+)
+
+fin_de_tour_boost_ami_devant = Capacité("fin_de_tour_boost_ami_devant",Evenement.FIN_TOUR,
+                                        lambda animal, equipe=None, position=None: Effet.boost_cible(
+        animal,
+       cible=[
+            equipe[i] for i in range(position -1,position)
+            if equipe[i] is not None and equipe[i] != animal
+        ][:1]))
+
+ami_devant_meurt_gain_melon_et_attaque = Capacité("ami_devant_meurt_gain_melon_et_attaque",Evenement.AMI_DEVANT_MEUR,[
+    lambda animal, equipe=None, position=None: Effet.boost_cible(animal,cible=[animal],boost_vie=False,No_scale=True),
+    lambda animal,**kwargs: setattr(animal, 'atout',pasteque_atout)
+],
+ max_activations=lambda animal: animal.niveau )
+
+ami_mange_nourriture_gain_vie = Capacité("ami_mange_nourriture_gain_vie",Evenement.AMI_MANGE,
+    lambda animal, equipe=None, position=None,**kwargs: Effet.boost_cible(animal,cible=[animal],boost_attaque=False), max_activations=4)
+
+à_la_mort_invoque_2_béliers = Capacité("à_la_mort_invoque_2_béliers", Evenement.MORT,
+        lambda position, animal, equipe=None, **kwargs: Effet.invoque_zombie(
+        position=position, 
+        equipe=equipe, 
+        zombie=generer_zombie_belier(animal.niveau), 
+        joueur=animal.joueur,
+        quantité=2,
+        nombre=2
+    )
+)
+
+# Capacité tier 4
+fin_de_tour_si_ami_niveau_3_gain_stats = Capacité("fin_de_tour_si_ami_niveau_3_gain_stats", Evenement.FIN_TOUR,
+    lambda animal, equipe=None, position=None: Effet.boost_cible(
+        animal,
+        cibles = [animal] if any(a for a in equipe if a is not None and a.niveau >= 3) else [] ,
+        valeur_boost_santé=2
+    )
+)
+
+quand_blessé_degats_ennemi_aleatoire= Capacité("quand_blessé_degats_ennemi_aleatoire", Evenement.BLESSE,lambda animal, equipe=None, position=None, equipe_enemie=None: Effet.degats_ennemi(animal, equipe=equipe_enemie, nombre_cible=1,degats=3 * animal.niveau))
+élimine_ennemi_gain_stats = Capacité("élimine_ennemi_gain_stats", Evenement.TUE, lambda animal, equipe=None, position=None, equipe_enemie=None: Effet.boost_cible( 
+    animal,
+    cibles = [animal] ,
+    valeur_boost_santé=3, valeur_boost_attaque=3
+))
+
 #invocation d'un zombie
 def generer_zombie_criquet(niveau):
     return Animal("Zombie Criquet", niveau, niveau, None, 1, 1, 1)
-def genere_tier_3(niveaux): # POur le moment on utilise des tier 1 en ttendant d'avoir les tier 3
-    tier3_animaux = [a for a in MOCK_ANIMAUX if a.rang == 1] #modifie 1 par 3
-    random_zombie = random.choice(tier3_animaux)
-    return random_zombie.clone()
+def generer_zombie_belier(niveau):
+    return Animal("Bélier", niveau * 2,  niveau *2, None, 1, 1, 1)
+def genere_tier_3(niveaux):
+    tier3_animaux = [a for a in MOCK_ANIMAUX if a.rang == 3] 
+    random_zombie = random.choice(tier3_animaux).clone()
+    random_zombie.degats = 2* niveaux
+    random_zombie.santé = 2 * niveaux
+    return random_zombie
 abeille = Animal("Abeille", 1, 1, None, 1, 1, 1)
 # Animaux Tier 1
 fourmi = Animal("Fourmi", 2, 2, à_la_mort_boost_aleatoire,1, 1, 1)
@@ -72,22 +197,22 @@ cygne = Animal("Cygne", 1, 2, au_debut_tour_gagne_or, 1, 1, 2)
 ver = Animal("Ver", 1, 3, au_debut_tour_stocke_pomme, 1, 1, 2)
 
 # Animaux Tier 3
-#blaireau = Animal("Blaireau", 6, 3, à_la_mort_degats_aux_voisins, 1, 1, 3)
-#chameau = Animal("Chameau", 3, 4, quand_blessé_boost_ami_derrière, 1, 1, 3)
-#dodo = Animal("Dodo", 4, 2, début_combat_donne_attaque_ami_devant, 1, 1, 3)
-#chien = Animal("Chien", 3, 2, ami_invoqué_gain_temporaire, 1, 1, 3)
-#dauphin = Animal("Dauphin", 4, 3, début_combat_degats_ennemi_le_plus_faible, 1, 1, 3)
-#éléphant = Animal("Éléphant", 3, 7, après_attaque_blesse_ami_derrière, 1, 1, 3)
-#girafe = Animal("Girafe", 1, 2, fin_de_tour_boost_ami_devant, 1, 1, 3)
-#bœuf = Animal("Bœuf", 1, 3, ami_devant_meurt_gain_melon_et_attaque, 1, 1, 3)
-#lapin = Animal("Lapin", 1, 2, ami_mange_nourriture_gain_vie, 1, 1, 3)
-#mouton = Animal("Mouton", 2, 2, à_la_mort_invoque_2_béliers, 1, 1, 3)
+blaireau = Animal("Blaireau", 6, 3, à_la_mort_degats_aux_voisins, 1, 1, 3)
+chameau = Animal("Chameau", 3, 4, quand_blessé_boost_ami_derrière, 1, 1, 3)
+dodo = Animal("Dodo", 4, 2, début_combat_donne_attaque_ami_devant, 1, 1, 3)
+chien = Animal("Chien", 3, 2, ami_invoqué_gain_temporaire, 1, 1, 3)
+dauphin = Animal("Dauphin", 4, 3, début_combat_degats_ennemi_le_plus_faible, 1, 1, 3)
+éléphant = Animal("Éléphant", 3, 7, après_attaque_blesse_ami_derrière, 1, 1, 3)
+girafe = Animal("Girafe", 1, 2, fin_de_tour_boost_ami_devant, 1, 1, 3)
+boeuf = Animal("Bœuf", 1, 3, ami_devant_meurt_gain_melon_et_attaque, 1, 1, 3)
+lapin = Animal("Lapin", 1, 2, ami_mange_nourriture_gain_vie, 1, 1, 3)
+mouton = Animal("Mouton", 2, 2, à_la_mort_invoque_2_béliers, 1, 1, 3)
 
 # Animaux Tier 4
-#bison = Animal("Bison", 4, 4, fin_de_tour_si_ami_niveau_3_gain_stats, 1, 1, 4)
-#poisson_globe = Animal("Poisson-globe", 3, 6, quand_blessé_degats_ennemi_aleatoire, 1, 1, 4)
+bison = Animal("Bison", 4, 4, fin_de_tour_si_ami_niveau_3_gain_stats, 1, 1, 4)
+poisson_globe = Animal("Poisson-globe", 3, 6, quand_blessé_degats_ennemi_aleatoire, 1, 1, 4)
 #cerf = Animal("Cerf", 2, 2, à_la_mort_invoque_bus_avec_piment, 1, 1, 4)
-#hippopotame = Animal("Hippopotame", 4, 5, élimine_ennemi_gain_stats, 1, 1, 4)
+hippopotame = Animal("Hippopotame", 4, 5, élimine_ennemi_gain_stats, 1, 1, 4)
 #perroquet = Animal("Perroquet", 4, 2, fin_de_tour_copie_capacité_ami_devant, 1, 1, 4)
 #pingouin = Animal("Pingouin", 1, 3, fin_de_tour_boost_amis_niveau_2_plus, 1, 1, 4)
 #moufette = Animal("Moufette", 3, 5, début_combat_reduit_vie_ennemi_plus_sain, 1, 1, 4)
@@ -121,12 +246,17 @@ ver = Animal("Ver", 1, 3, au_debut_tour_stocke_pomme, 1, 1, 2)
 
 
 def generer_ver_pomme(niveau):
-     return  Nourriture("Pomme" if niveau == 1 else "Super Pomme" if niveau == 2  else "Ultra Pomme",lambda cible : Effet.boost_cible(pomme,[cible],valeur_boost=niveau), "+1 vie,+1 degat animal", 2, 1)
+     nom = "Pomme" if niveau == 1 else "Super Pomme" if niveau == 2 else "Ultra Pomme"
+     description = f"+{niveau} vie, +{niveau} dégât animal"
+     return  Nourriture(nom,lambda cible : Effet.boost_cible(pomme,[cible],valeur_boost=niveau), description, 2, 1)
+
 
 #Nourriture Tier 1
 pomme = Nourriture("Pomme",lambda cible : Effet.boost_cible(pomme,[cible]), "+1 vie,+1 degat animal", 3, 1)
-miel = Nourriture("Miel",lambda cible: setattr(cible, 'atout', Atout("Miel",lambda position, equipe=None : Effet.invoque_zombie(position=position,equipe = equipe,zombie=abeille,joueur=cible.joueur ), trigger=Evenement.MORT)), "Ajoute l'atout miel a l'animal", 3, 1)
+miel = Nourriture("Miel",lambda cible: setattr(cible, 'atout',miel_atout), "Ajoute l'atout miel a l'animal", 3, 1)
+pasteque = Nourriture("Pasteque",lambda cible: setattr(cible, 'atout',pasteque_atout), "Ajoute l'atout pasteque a l'animal", 3, 6)
 miette = Nourriture("Miette de pain",lambda cible: Effet.boost_cible(miette, [cible], boost_vie=False), "+1 degat animal", 0, 100)
+
 
 # Liste des animaux mockés
 MOCK_ANIMAUX = [
@@ -139,9 +269,9 @@ MOCK_ANIMAUX = [
     crabe, flamant_rose, hérisson, kangourou, paon,
     rat, escargot,
 
-    # # Tier 3
-    # blaireau, chameau, dodo, chien, dauphin,
-    # éléphant, girafe, bœuf, lapin, mouton,
+     # Tier 3
+    blaireau, chameau, dodo, chien, dauphin,
+    éléphant, girafe, boeuf, lapin, mouton,
 
     # # Tier 4
     # bison, poisson_globe, cerf, hippopotame, perroquet,

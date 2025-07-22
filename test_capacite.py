@@ -66,7 +66,7 @@ def test_capacite_loutre():
     print("\n=== Test de la capacité de la Loutre (à l'achat : boost 1 ami) ===")
     boutique = Boutique()
     boutique.animaux = [data.loutre, data.MOCK_ANIMAUX[1], None]
-    equipe = [data.MOCK_ANIMAUX[0], data.moustique, data.MOCK_ANIMAUX[2], None, None]
+    equipe = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
     
     joueur = Joueur("Alice")
     joueur.acheter(boutique,0, 0)
@@ -117,14 +117,21 @@ def test_capacite_crabe():
 def test_capacite_hérisson():
     print("\n=== Test de la capacité du Hérisson (à la mort : dégâts à tous) ===")
     equipe = [data.hérisson.clone(), data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
-    equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2], None, None]
+    equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
     joueur = Joueur("Alice")
     joueur2 = Joueur("Bob")
-    equipe[0].joueur = joueur
+    
+    for i in range(len(equipe)):
+        if equipe[i] is not None:
+            equipe[i].joueur = joueur
+    for i in range(len(equipe_enemie)):
+        if equipe_enemie[i] is not None:
+            equipe_enemie[i].joueur = joueur2
     joueur.animaux = equipe
+    joueur2.animaux = equipe_enemie
     joueur.adversaire = joueur2
-    joueur.adversaire.animaux = equipe_enemie
-    joueur.animaux
+    joueur2.adversaire = joueur
+   
 
     equipe[0].meur_combat(joueur.animaux)  # Simule la mort du hérisson
   
@@ -187,19 +194,166 @@ def test_capacite_cygne():
 def test_capacite_ver():
     print("\n=== Test de la capacité du Ver (début du tour : stocke une pomme) ===")
     boutique = Boutique()
-    boutique.nourriture = [data.pomme, data.miel]
     joueur = Joueur("Alice")
     joueur.boutique = boutique
-    if data.ver.capacité.trigger == Evenement.DEBUT_TOUR:
+    vero = data.ver.clone()
+    vero.evolue()
+    
+    if vero.capacité.trigger == Evenement.DEBUT_TOUR:
+        boutique.raffraichir()  
         boutique.afficher_nourriture()
-        data.ver.capacité.activer(boutique=boutique, animal=data.ver)
+        vero.capacité.activer(boutique=boutique, animal=vero)
        
         
         boutique.afficher_nourriture()
         
+def test_capacite_blaireau():
+    print("\n=== Test de la capacité du Blaireau (à la mort : dégâts aux ennemis) ===")
+    equipe = [ data.blaireau.clone(),data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+    equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+    joueur = Joueur("Alice")
+    joueur2 = Joueur("Bob")
+    
+    for i in range(len(equipe)):
+        if equipe[i] is not None:
+            equipe[i].joueur = joueur
+    for i in range(len(equipe_enemie)):
+        if equipe_enemie[i] is not None:
+            equipe_enemie[i].joueur = joueur2
+    joueur.animaux = equipe
+    joueur2.animaux = equipe_enemie
+    joueur.adversaire = joueur2
+    joueur2.adversaire = joueur
 
+    equipe[0].meur_combat(joueur.animaux)  # Simule la mort du blaireau
+    
 
-   
+def test_capacite_chameau():
+    print("\n=== Test de la capacité du chameau(blessé: boost amis deriere) ===")
+    chammeau = data.chameau.clone()
+    
+    equipe = [chammeau, data.MOCK_ANIMAUX[1].clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+    index = equipe.index(chammeau)
+    if chammeau.capacité.trigger == Evenement.BLESSE:
+        chammeau.capacité.activer(animal=chammeau,position = index,equipe =equipe)
+
+def test_capacite_dodo():
+    print("\n=== Test de la capacité du Dodo (début combat : donne attaque à l'ami devant) ===")
+    dodo = data.dodo.clone()
+    equipe = [data.MOCK_ANIMAUX[1].clone(), dodo ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+    index = equipe.index(dodo) 
+
+    if dodo.capacité.trigger == Evenement.DEBUT_COMBAT:
+        dodo.capacité.activer(animal=dodo, equipe=equipe, position=index)
+
+def test_capacite_chien():
+    print("\n=== Test de la capacité du Chien (ami invoquer : gagne attaque et vie) ===")
+    chien = data.chien.clone()
+    equipe = [data.MOCK_ANIMAUX[1].clone(), chien,data.MOCK_ANIMAUX[2].clone(),  None, None]
+    joueur = Joueur("Alice")
+    joueur.animaux = equipe
+    joueur.ajouter_animal(data.MOCK_ANIMAUX[1].clone(),0)
+    joueur.ajouter_animal(data.MOCK_ANIMAUX[1].clone(),0)
+    joueur.ajouter_animal(data.MOCK_ANIMAUX[1].clone(),0)
+
+def test_capacite_dauphin():
+        print("\n=== Test de la capacité du dauphin (debut combat : attaque le plus faible) ===")
+        dauphin = data.dauphin.clone()
+        equipe = [data.MOCK_ANIMAUX[1].clone(), dauphin ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+        equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+        joueur = Joueur("Alice")
+        joueur2 = Joueur("Bob")
+        
+        for i in range(len(equipe)):
+            if equipe[i] is not None:
+                equipe[i].joueur = joueur
+        for i in range(len(equipe_enemie)):
+            if equipe_enemie[i] is not None:
+                equipe_enemie[i].joueur = joueur2
+        joueur.animaux = equipe
+        joueur2.animaux = equipe_enemie
+        joueur.adversaire = joueur2
+        joueur2.adversaire = joueur
+        index = equipe.index(dauphin) 
+
+        if dauphin.capacité.trigger == Evenement.DEBUT_COMBAT:
+            dauphin.capacité.activer(animal=dauphin, equipe_enemie=equipe_enemie)
+
+def test_capacite_elephant():
+        print("\n=== Test de la capacité de l'éléphant  (après attaque : blesse amis derriere) ===")
+        éléphant  = data.éléphant .clone()
+        equipe = [data.MOCK_ANIMAUX[1].clone(), éléphant  ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+        equipe_enemie = [data.MOCK_ANIMAUX[0].clone(), data.moustique.clone(), data.MOCK_ANIMAUX[2].clone(), None, None]
+        joueur = Joueur("Alice")
+        joueur2 = Joueur("Bob")
+        
+        for i in range(len(equipe)):
+            if equipe[i] is not None:
+                equipe[i].joueur = joueur
+        for i in range(len(equipe_enemie)):
+            if equipe_enemie[i] is not None:
+                equipe_enemie[i].joueur = joueur2
+        joueur.animaux = equipe
+        joueur2.animaux = equipe_enemie
+        joueur.adversaire = joueur2
+        joueur2.adversaire = joueur
+        index = equipe.index(éléphant ) 
+
+        if éléphant .capacité.trigger == Evenement.ATTAQUE:
+            éléphant .capacité.activer(animal=éléphant , equipe=equipe, position = index)
+
+def test_capacite_girafe():
+    print("\n=== Test de la capacité du girafe (fin tour : donne attaque,santé à l'ami devant) ===")
+    girafe = data.girafe.clone()
+    equipe = [data.MOCK_ANIMAUX[1].clone(), girafe ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+    index = equipe.index(girafe) 
+
+    if girafe.capacité.trigger == Evenement.FIN_TOUR:
+        girafe.capacité.activer(animal=girafe, equipe=equipe, position=index)
+
+def test_capacite_boeuf():
+    print("\n=== Test de la capacité du boeuf (amis devant meur : d gagne pasteque et attaque) ===")
+    boeuf = data.boeuf.clone()
+    equipe = [data.MOCK_ANIMAUX[1].clone(), boeuf ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+    index = equipe.index(boeuf) 
+
+    if boeuf.capacité.trigger == Evenement.AMI_DEVANT_MEUR:
+        boeuf.capacité.activer(animal=boeuf, equipe=equipe, position=index)
+    
+    equipe[0].attaque(boeuf)
+    equipe[0].attaque(boeuf)
+    boeuf.capacité.reset_activations()
+    boeuf.capacité.activer(animal=boeuf, equipe=equipe, position=index)
+    equipe[0].attaque(boeuf)
+
+def test_capacite_lapin():
+    print("\n=== Test de la capacité du lapin (amis mange : gagne vie) ===")
+    lapin = data.lapin.clone()
+    equipe = [data.MOCK_ANIMAUX[1].clone(), lapin ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+    index = equipe.index(lapin) 
+
+    if lapin.capacité.trigger == Evenement.AMI_MANGE:
+        lapin.capacité.activer(animal=lapin, equipe=equipe, position=index)
+        lapin.capacité.activer(animal=lapin, equipe=equipe, position=index)
+        lapin.capacité.activer(animal=lapin, equipe=equipe, position=index)
+        lapin.capacité.activer(animal=lapin, equipe=equipe, position=index)
+        lapin.evolue()
+        lapin.capacité.activer(animal=lapin, equipe=equipe, position=index)
+    
+    
+    lapin.capacité.reset_activations()
+    lapin.capacité.activer(animal=lapin, equipe=equipe, position=index)
+
+def test_capacite_mouton():
+    print("\n=== Test de la capacité du mouton (à la mort : invoque 2 béliers) ===")
+    mouton = data.mouton.clone()
+    equipe = [data.MOCK_ANIMAUX[1].clone(), mouton ,data.MOCK_ANIMAUX[2].clone(),  None, None]
+    joueur = Joueur("Alice")
+    joueur.animaux = equipe 
+    equipe[1].joueur = joueur
+
+    equipe[1].meur_combat(equipe)    
+
 
 # Lancer les tests un par un
 if __name__ == "__main__":
@@ -223,3 +377,13 @@ if __name__ == "__main__":
     test_capacite_araigné()
     test_capacite_cygne()
     test_capacite_ver()
+    test_capacite_blaireau()
+    test_capacite_chameau()
+    test_capacite_dodo()
+    test_capacite_chien()
+    test_capacite_dauphin()
+    test_capacite_elephant()
+    test_capacite_girafe()
+    test_capacite_boeuf()
+    test_capacite_lapin()
+    test_capacite_mouton()

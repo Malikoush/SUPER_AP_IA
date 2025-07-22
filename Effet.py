@@ -1,4 +1,5 @@
 # effets.py
+from inspect import _empty
 import math
 import random
 from Animal import Animal
@@ -19,23 +20,37 @@ def boost_aleatoire(animal, equipe, boost_vie=True, boost_attaque=True, nombre_c
             choisi.santé += boost_santé
         print(f"{animal.nom} booste {choisi.nom} : +{boost_degats if boost_attaque else 0} ATQ / +{boost_santé if boost_vie else 0} VIE")
 
-def boost_cible(booster, cible, boost_vie=True, boost_attaque=True,valeur_boost =1, **kwargs):
+def boost_cible(booster, cible, boost_vie=True, boost_attaque=True,valeur_boost_attaque =1,valeur_boost_santé =1,scale_pourcentage=False,No_scale=False, **kwargs):
         if type(booster) is Animal:
              boost = booster.niveau
         else:
             boost = 1
+ 
+        if cible == []:
+            print("Aucune cible à booster.")
+            return
+        if scale_pourcentage:
+            gain_attaque = math.floor(valeur_boost_attaque * booster.niveau * 0.5)
+            gain_santé = math.floor(valeur_boost_santé * booster.niveau * 0.5)
+        elif No_scale:
+            gain_attaque = valeur_boost_attaque
+            gain_santé =  valeur_boost_santé 
+        else:
+            gain_attaque = valeur_boost_attaque * booster.niveau
+            gain_santé =  valeur_boost_santé * booster.niveau
+       
         if boost_attaque:
             for c in cible:
                 if c is not None:
-                 c.degats += valeur_boost * boost
+                 c.degats += gain_attaque
             
         if boost_vie:
             for c in cible:
                 if c is not None:
-                    c.santé += valeur_boost * boost
+                    c.santé += gain_santé
         for c in cible:
              if c is not None:
-                 print(f"{booster.nom} booste {c.nom} : +{1 if boost_attaque else 0} ATQ / +{1 if boost_vie else 0} VIE")
+                 print(f"{booster.nom} booste {c.nom} : +{gain_attaque if boost_attaque else 0} ATQ / +{gain_santé if boost_vie else 0} VIE")
    
 
 
@@ -47,38 +62,40 @@ def boost_boutique(animal, boutique,valeur_boost =1, **kwargs):
             print(f"{animal.nom} boost {a.nom} dans la boutique (+1 VIE)")
 
 
-def invoque_zombie(position, equipe, zombie,joueur, **kwargs):
+def invoque_zombie(position, equipe, zombie,joueur,quantité=1, **kwargs):
         zombie.joueur = joueur
-        Utils.invoquer_animal(equipe, zombie, position)
+        for q in range(quantité):
+            Utils.invoquer_animal(equipe, zombie, position)
+       
         for animal in equipe:
             if animal is not None:
                 print(f"{animal.nom} est à la position {equipe.index(animal)}")
 
 
-def degats_ennemi(animal, equipe,nombre_cible, **kwargs):
+def degats_ennemi(animal, equipe,nombre_cible,degats = 1,**kwargs):
         ennemis = [a for a in equipe if a is not None and a != animal]
         if not ennemis:
             return 
         random.shuffle(ennemis)  
         cibles = ennemis[:nombre_cible * animal.niveau]
-        degats = 1
+        
         for cible in cibles:
             cible.subit(degats)
             print(f"{animal.nom} inflige {degats} dégâts à {cible.nom}")
-            if cible.santé <= 0:
-                cible.meur_combat(equipe)
+           
 
-def degats_tous(ennemis,equipe, degats, **kwargs):
-    cibles = ennemis + equipe
-    if  cibles:
+def degats_cible(animal,cibles, degats=1,scale_pourcentage=False,  **kwargs):
+        if scale_pourcentage:
+            degats = math.floor(degats * animal.niveau * 0.5)
+        else:
+            degats = degats* animal.niveau
+        
         for cible in cibles:
             if cible is not None:
+                print(f"{animal.nom} inflige {degats} dégâts à {cible.nom}.")
                 cible.subit(degats)
-                print(f"{cible.nom} subit {degats} dégâts.")
-                if cible in ennemis and cible.santé <= 0:
-                    cible.meur_combat(ennemis)
-                elif cible in equipe and cible.santé <= 0:
-                    cible.meur_combat(equipe)
+                
+            
     
            
         
@@ -111,3 +128,6 @@ def copie_vie(animal, equipe, **kwargs):
         print(f"{animal.nom} copie la vie de {amie.nom} et obtient {gain} points de vie supplémentaires.")
     else:
         print(f"{animal.nom} n'a pas trouvé d'ami plus sain pour copier la vie.")
+        
+
+
